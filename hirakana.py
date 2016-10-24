@@ -1,11 +1,16 @@
+"""
+A super simple trainer that uses Qt5,7 to train your katakan and hiragana
+"""
+
 from PyQt5.QtCore import QFile, QRegExp, Qt
 from PyQt5.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat
 from PyQt5.QtWidgets import (
     QApplication, QFileDialog, QMainWindow, QMenu,
-    QMessageBox, QTextEdit, QLabel, QVBoxLayout, QHBoxLayout,
+    QMessageBox, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout,
     QWidget, QGroupBox
 )
 
+import random
 
 CHARACTERS = [
     'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'ガ', 'キ', 'ギ',
@@ -77,11 +82,14 @@ class MainWindow(QWidget):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
-        self.character = QLabel(CHARACTERS[12])
-        self.phonetic = QLabel(PHONETICS[12])
+        self.index = random.randint(0, len(CHARACTERS))
+
+        self.character = QLabel(CHARACTERS[self.index])
+        self.phonetic = QLabel(PHONETICS[self.index])
 
         font = QFont('Arial', 100, QFont.Normal)
         self.character.setFont(font)
+        self.phonetic.setVisible(False)
 
         font = QFont('Aardvark Cafe', 50, QFont.Normal)
         self.phonetic.setFont(font)
@@ -89,10 +97,20 @@ class MainWindow(QWidget):
         phlayout.setAlignment(Qt.AlignCenter)
         phlayout.addWidget(self.phonetic)
 
+        self.input_field = QLineEdit()
+        self.input_field.textChanged.connect(self.check_valid)
+        self.input_field.returnPressed.connect(self.show_phonetic)
+
+        char_layout = QHBoxLayout()
+        char_layout.setAlignment(Qt.AlignCenter)
+        char_layout.addWidget(self.character)
+
         main_layout = QVBoxLayout()
 
-        main_layout.addWidget(self.character)
+        main_layout.addLayout(char_layout)
         main_layout.addLayout(phlayout)
+        main_layout.addWidget(self.input_field)
+
         main_layout.setAlignment(Qt.AlignCenter)
 
         hlayout = QHBoxLayout()
@@ -106,6 +124,25 @@ class MainWindow(QWidget):
         vlayout.addWidget(gbox)
 
         self.setLayout(vlayout)
+
+    def check_valid(self):
+        """If the text input is correct, load a new symbol"""
+        if self.input_field.text() == self.phonetic.text():
+            self.change_symbol()
+
+    def show_phonetic(self):
+        self.phonetic.setVisible(True)
+
+    def change_symbol(self):
+        """Change the displayed symbol and clear the text box"""
+        self.index = random.randint(0, len(CHARACTERS)-1)
+
+        self.character.setText(CHARACTERS[self.index])
+        self.phonetic.setText(PHONETICS[self.index])
+        self.phonetic.setVisible(False)
+
+        self.input_field.setText('')
+
 
 if __name__ == '__main__':
 
