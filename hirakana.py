@@ -2,12 +2,12 @@
 A super simple trainer that uses Qt5,7 to train your katakan and hiragana
 """
 
-from PyQt5.QtCore import QFile, QRegExp, Qt
-from PyQt5.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat
-from PyQt5.QtWidgets import (
+from PySide2.QtCore import QFile, QRegExp, Qt
+from PySide2.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat
+from PySide2.QtWidgets import (
     QApplication, QFileDialog, QMainWindow, QMenu,
     QMessageBox, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout,
-    QWidget, QGroupBox
+    QWidget, QGroupBox, QCheckBox
 )
 
 import random
@@ -20,14 +20,14 @@ CHARACTERS = [
     'ノ', 'ハ', 'バ', 'パ', 'ヒ', 'ビ', 'ピ', 'フ', 'ブ', 'プ',
     'ヘ', 'ベ', 'ペ', 'ホ', 'ボ', 'ポ', 'マ', 'ミ', 'ム', 'メ',
     'モ', 'ヤ', 'ユ', 'ヨ', 'ラ', 'リ', 'ル', 'レ', 'ロ',
-    'ワ', 'ヰ', 'ヱ', 'ヲ', 'ン', 'ヴ', 'ヷ', 'ヸ', 'ヹ', 'ヺ',
+    'ワ', 'ヲ', 'ン',
 
     'リャ', 'リュ', 'リョ', 'ミャ', 'ミュ', 'ミョ', 'ピャ', 'ピュ',
     'ピョ', 'ビャ', 'ビュ', 'ビョ', 'ヒャ', 'ヒュ', 'ヒョ', 'ニャ',
     'ニュ', 'ニョ', 'チャ', 'チュ', 'チョ', 'ジャ', 'ジュ', 'ジョ',
     'シャ', 'シュ', 'ショ', 'ギャ', 'ギュ', 'ギョ', 'キャ', 'キュ',
     'キョ', 'フォ', 'フェ', 'フィ', 'ファ', 'ディ', 'ティ', 'ドゥ',
-    'トゥ', 'チェ', 'ジェ', 'シェ', 'ウェ', 'ヴァ',
+    'トゥ', 'チェ', 'ジェ', 'シェ',
 
     'あ', 'い', 'う', 'え', 'お', 'か', 'が', 'き', 'ぎ', 'く',
     'ぐ', 'け', 'げ', 'こ', 'ご', 'さ', 'ざ', 'し', 'じ', 'す',
@@ -35,8 +35,8 @@ CHARACTERS = [
     'づ', 'て', 'で', 'と', 'ど', 'な', 'に', 'ぬ', 'ね', 'の',
     'は', 'ば', 'ぱ', 'ひ', 'び', 'ぴ', 'ふ', 'ぶ', 'ぷ', 'へ',
     'べ', 'ぺ', 'ほ', 'ぼ', 'ぽ', 'ま', 'み', 'む', 'め', 'も',
-    'や', 'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'ゐ',
-    'ゑ', 'を', 'ん', 'ゔ',
+    'や', 'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ',
+    'を', 'ん',
 
     'りゃ', 'りゅ', 'りょ', 'みゃ', 'みゅ', 'みょ', 'ぴゃ', 'ぴゅ',
     'ぴょ', 'びゃ', 'びゅ', 'びょ', 'ひゃ', 'ひゅ', 'ひょ', 'にゃ',
@@ -53,14 +53,14 @@ PHONETICS = [
     'no', 'ha', 'ba', 'pa', 'hi', 'bi', 'pi', 'fu', 'bu', 'pu',
     'he', 'be', 'pe', 'ho', 'bo', 'po', 'ma', 'mi', 'mu', 'me',
     'mo', 'ya', 'yu', 'yo', 'ra', 'ri', 'ru', 're', 'ro',
-    'wa', 'wi', 'we', 'wo', 'n', 'vu', 'va', 'vi', 've', 'vo',
+    'wa', 'wo', 'n',
 
     'rya', 'ryu', 'ryo', 'mya', 'myu', 'myo', 'pya', 'pyu',
     'pyo', 'bya', 'byu', 'byo', 'hya', 'hyu', 'hyo', 'nya',
     'nyu', 'nyo', 'cha', 'chu', 'cho', 'ja', 'ju', 'jo',
     'sha', 'shu', 'sho', 'gya', 'gyu', 'gyo', 'kya', 'kyu',
     'kyo', 'fo', 'fe', 'fi', 'fa', 'di', 'ti', 'du',
-    'tu', 'che', 'je', 'she', 'we', 'va',
+    'tu', 'che', 'je', 'she',
 
     'a', 'i', 'u', 'e', 'o', 'ka', 'ga', 'ki', 'gi', 'ku',
     'gu', 'ke', 'ge', 'ko', 'go', 'sa', 'za', 'shi', 'ji', 'su',
@@ -68,8 +68,8 @@ PHONETICS = [
     'zu', 'te', 'de', 'to', 'do', 'na', 'ni', 'nu', 'ne', 'no',
     'ha', 'ba', 'pa', 'hi', 'bi', 'pi', 'fu', 'bu', 'pu', 'he',
     'be', 'pe', 'ho', 'bo', 'po', 'ma', 'mi', 'mu', 'me', 'mo',
-    'ya', 'yu', 'yo', 'ra', 'ri', 'ru', 're', 'ro', 'wa', 'wi',
-    'we', 'wo', 'n', 'vu',
+    'ya', 'yu', 'yo', 'ra', 'ri', 'ru', 're', 'ro', 'wa',
+    'wo', 'n',
 
     'rya', 'ryu', 'ryo', 'mya', 'myu', 'myo', 'pya', 'pyu',
     'pyo', 'bya', 'byu', 'byo', 'hya', 'hyu', 'hyo', 'nya',
@@ -79,10 +79,15 @@ PHONETICS = [
 ]
 
 class MainWindow(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, katakana=True, hiragana=True):
         super(MainWindow, self).__init__(parent)
 
-        self.index = random.randint(0, len(CHARACTERS))
+        self.katakana = katakana
+        self.hiragana = hiragana
+
+        self.exclude_list = []
+
+        self.get_new_index()
 
         self.character = QLabel(CHARACTERS[self.index])
         self.phonetic = QLabel(PHONETICS[self.index])
@@ -120,10 +125,50 @@ class MainWindow(QWidget):
         gbox = QGroupBox()
         gbox.setLayout(hlayout)
 
+        self.checkbox_hira = QCheckBox('Hiragana')
+        self.checkbox_hira.setChecked(hiragana)
+        self.checkbox_hira.stateChanged.connect(self.hiragana_changed)
+
+        self.checkbox_kata = QCheckBox('Katagkana')
+        self.checkbox_kata.setChecked(katakana)
+        self.checkbox_kata.stateChanged.connect(self.katakana_changed)
+
+        checklayout = QHBoxLayout()
+        checklayout.addWidget(self.checkbox_hira)
+        checklayout.addWidget(self.checkbox_kata)
+
         vlayout = QVBoxLayout()
+        vlayout.addLayout(checklayout)
         vlayout.addWidget(gbox)
 
         self.setLayout(vlayout)
+
+    def hiragana_changed(self, checked):
+        self.hiragana = checked == 1
+        self.exclude_list = []
+
+    def katakana_changed(self, checked):
+        self.katakana = checked == 1
+        self.exclude_list = []
+
+    def get_new_index(self):
+
+        if self.katakana:
+            char_range = CHARACTERS[0:115]
+        elif self.hiragana:
+            char_range = CHARACTERS[115:]
+        else:
+            char_range = CHARACTERS
+
+        valid_list = list(set(char_range) - set(self.exclude_list))
+        if not valid_list:
+            self.exclude_list = []
+            valid_list = char_range
+
+        choice = random.choice(valid_list)
+        self.index = CHARACTERS.index(choice)
+
+        self.exclude_list.append(choice)
 
     def check_valid(self):
         """If the text input is correct, load a new symbol"""
@@ -135,7 +180,8 @@ class MainWindow(QWidget):
 
     def change_symbol(self):
         """Change the displayed symbol and clear the text box"""
-        self.index = random.randint(0, len(CHARACTERS)-1)
+
+        self.get_new_index()
 
         self.character.setText(CHARACTERS[self.index])
         self.phonetic.setText(PHONETICS[self.index])
