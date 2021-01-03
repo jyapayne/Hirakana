@@ -129,7 +129,7 @@ class MainWindow(QWidget):
         self.checkbox_hira.setChecked(hiragana)
         self.checkbox_hira.stateChanged.connect(self.hiragana_changed)
 
-        self.checkbox_kata = QCheckBox('Katagkana')
+        self.checkbox_kata = QCheckBox('Katakana')
         self.checkbox_kata.setChecked(katakana)
         self.checkbox_kata.stateChanged.connect(self.katakana_changed)
 
