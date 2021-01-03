@@ -85,6 +85,9 @@ class MainWindow(QWidget):
         self.katakana = katakana
         self.hiragana = hiragana
 
+        self.katakana_range = CHARACTERS[:115]
+        self.hiragana_range = CHARACTERS[115:]
+
         self.exclude_list = []
 
         self.get_new_index()
@@ -144,19 +147,21 @@ class MainWindow(QWidget):
         self.setLayout(vlayout)
 
     def hiragana_changed(self, checked):
-        self.hiragana = checked == 1
+        self.hiragana = bool(checked)
         self.exclude_list = []
+        self.change_symbol()
 
     def katakana_changed(self, checked):
-        self.katakana = checked == 1
+        self.katakana = bool(checked)
         self.exclude_list = []
+        self.change_symbol()
 
     def get_new_index(self):
 
         if self.katakana:
-            char_range = CHARACTERS[0:115]
+            char_range = self.katakana_range
         elif self.hiragana:
-            char_range = CHARACTERS[115:]
+            char_range = self.hiragana_range
         else:
             char_range = CHARACTERS
 
